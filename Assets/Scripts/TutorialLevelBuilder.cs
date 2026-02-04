@@ -29,8 +29,8 @@ public class TutorialLevelBuilder : MonoBehaviour
     };
 
     [Header("Optional")]
-    [Tooltip("If set, spawned platforms will be forced to this layer (e.g. Ground).")]
-    [SerializeField] private LayerMask platformLayer;
+    [Tooltip("Layer index (0–31) for spawned platforms. Set to Ground layer index (e.g. 6) so jump works. -1 = don't override prefab layer.")]
+    [SerializeField] private int platformLayerIndex = 6;
 
     private void Awake()
     {
@@ -47,12 +47,8 @@ public class TutorialLevelBuilder : MonoBehaviour
             p.name = $"Platform_{i + 1}";
             p.transform.localScale = new Vector3(e.scale.x, e.scale.y, 1f);
 
-            if (platformLayer.value != 0)
-            {
-                // Single layer in mask: get layer index (e.g. Ground = 6)
-                int layer = (int)Mathf.Log(platformLayer.value, 2);
-                p.layer = Mathf.Clamp(layer, 0, 31);
-            }
+            if (platformLayerIndex >= 0 && platformLayerIndex <= 31)
+                p.layer = platformLayerIndex;
         }
     }
 }

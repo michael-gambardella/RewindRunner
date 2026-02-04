@@ -31,7 +31,7 @@ public class GhostReplay : MonoBehaviour
         if (frames == null || frames.Count == 0) return;
 
         timer += Time.deltaTime * replaySpeed;
-        float frameDuration = 0.02f; // ~50 fps recording
+        float frameDuration = Time.fixedDeltaTime; // match physics timestep so replay doesn't drift
         while (index < frames.Count - 1 && timer >= (index + 1) * frameDuration)
             index++;
 

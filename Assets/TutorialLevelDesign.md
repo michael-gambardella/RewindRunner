@@ -64,3 +64,21 @@ All platforms: **Layer = Ground**, with a **Box Collider 2D** (not trigger) so t
 - [ ] Gap between platforms 1 and 2 is jumpable but not trivial.
 - [ ] Platform 3 is a clear “safe zone” to practice rewind.
 - [ ] All platforms are on the **Ground** layer so jump works.
+
+---
+
+## Ghost Physics (for puzzle levels)
+
+The **Ghost** prefab is on the **Ghost** layer and has a **Rigidbody2D (Kinematic)** + **BoxCollider2D** so it can:
+
+- **Press pressure plates** (plates use `OnTriggerEnter2D` and accept both Player and Ghost layers).
+- **Act as a platform** (player can jump off the ghost's head).
+- **Block lasers/hazards** (raycasts or triggers that check for the Ghost layer).
+
+### Collision rules (Project Settings → Physics 2D → Layer Collision Matrix)
+
+- **Ghost** ↔ **Default** (Player): **checked** (collide) — so the player can stand on the ghost.
+- **Ghost** ↔ **Ground**: **unchecked** (no collision) — avoids pushing/stacking on platforms.
+- **Ghost** ↔ **Ghost**: **unchecked** — if you ever spawn multiple ghosts, they don't push each other.
+
+Plates and switches should use **triggers** and detect both **Default** and **Ghost** in their layer mask (or use a dedicated "Interactable" layer that both can trigger).

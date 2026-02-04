@@ -31,7 +31,7 @@ public class PlayerController2D : MonoBehaviour
     [Header("Ground Check")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private Vector2 groundCheckSize = new Vector2(0.6f, 0.1f);
-    [Tooltip("Ray down from feet; if this hits Ground layer, you're grounded. Increase if jump still fails.")]
+    [Tooltip("Layers that count as ground. Set to Ground + Ghost + Default so you can jump on platforms, off the ghost, and on pressure plates (plates use Default so the ghost can trigger them).")]
     [SerializeField] private float groundCheckDistance = 0.25f;
     [SerializeField] private LayerMask groundMask;
 
@@ -89,8 +89,8 @@ public class PlayerController2D : MonoBehaviour
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-        // Cap recording at rewindDurationSeconds (assume 50 FixedUpdate/sec)
-        maxRecordedFrames = Mathf.RoundToInt(50f * rewindDurationSeconds);
+        // Cap recording at rewindDurationSeconds (use project Fixed Timestep)
+        maxRecordedFrames = Mathf.RoundToInt((1f / Time.fixedDeltaTime) * rewindDurationSeconds);
     }
 
     private void Update()
@@ -144,7 +144,7 @@ public class PlayerController2D : MonoBehaviour
         }
         else if (groundMask.value == 0)
         {
-            if (!_warnedGroundCheck) { Debug.LogWarning("PlayerController2D: Ground Mask is 'Nothing'. Set it to the 'Ground' layer and put your platforms on the Ground layer."); _warnedGroundCheck = true; }
+            if (!_warnedGroundCheck) { Debug.LogWarning("PlayerController2D: Ground Mask is 'Nothing'. Set it to Ground + Ghost + Default."); _warnedGroundCheck = true; }
             isGrounded = false;
         }
         else
@@ -174,7 +174,7 @@ public class PlayerController2D : MonoBehaviour
                     if (!_warnedWrongLayer)
                     {
                         _warnedWrongLayer = true;
-                        Debug.LogWarning($"PlayerController2D: Standing on '{hits[i].collider.gameObject.name}' but it's on layer '{LayerMask.LayerToName(layer)}' (not Ground). Select that object and set its Layer to 'Ground' in the Inspector so jump works.");
+                        Debug.LogWarning($"PlayerController2D: Standing on '{hits[i].collider.gameObject.name}' (layer '{LayerMask.LayerToName(layer)}') but that layer isn't in your Ground Mask. On the Player, set Ground Mask to Ground + Ghost + Default so jump works on platforms, the ghost, and pressure plates.");
                     }
                 }
             }
@@ -287,8 +287,8 @@ public class PlayerController2D : MonoBehaviour
             StopRewind();
             return;
         }
-        // Store the "future" frame we're undoing so the ghost can replay it
-        rewindSegment.Insert(0, recordedFrames[recordedFrames.Count - 1]);
+        // Store the "future" frame we're undoing so the ghost can replay it (Add + Reverse is O(1) per step vs Insert(0) O(n))
+        rewindSegment.Add(recordedFrames[recordedFrames.Count - 1]);
         recordedFrames.RemoveAt(recordedFrames.Count - 1);
         // Set smooth rewind target (position is smoothed in Update)
         RecordedFrame prev = recordedFrames[recordedFrames.Count - 1];
@@ -307,7 +307,10 @@ public class PlayerController2D : MonoBehaviour
         rb.linearVelocity = _rewindTargetVelocity;
 
         if (rewindSegment != null && rewindSegment.Count > 0 && ghostPrefab != null)
+        {
+            rewindSegment.Reverse(); // we built rewindSegment in reverse order (newest first); flip for chronological playback
             SpawnGhost(rewindSegment);
+        }
         rewindSegment = null;
     }
 
