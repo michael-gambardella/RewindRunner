@@ -18,13 +18,59 @@ public class HazardBeam : MonoBehaviour
     [SerializeField] private LayerMask damageLayer;
 
     [Header("Kill")]
-    [Tooltip("If set, player GameObject is disabled on hit. Otherwise send message Kill() or use your own logic.")]
+    [Tooltip("For non-player targets: disable on hit, or send Kill message.")]
     [SerializeField] private bool disablePlayerOnHit = true;
+
+    [Header("Visual")]
+    [Tooltip("Color of the beam line (default red).")]
+    [SerializeField] private Color beamColor = new Color(1f, 0.2f, 0.2f, 0.9f);
+    [Tooltip("Width of the beam at start and end.")]
+    [SerializeField] private float beamWidth = 0.15f;
+
+    private LineRenderer _lineRenderer;
+
+    private void Awake()
+    {
+        _lineRenderer = GetComponent<LineRenderer>();
+        if (_lineRenderer == null)
+            _lineRenderer = gameObject.AddComponent<LineRenderer>();
+        if (_lineRenderer != null)
+        {
+            _lineRenderer.useWorldSpace = true;
+            _lineRenderer.positionCount = 2;
+            _lineRenderer.startWidth = beamWidth;
+            _lineRenderer.endWidth = beamWidth * 0.5f;
+            if (_lineRenderer.material == null || _lineRenderer.material.name.StartsWith("Default"))
+            {
+                Shader shader = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
+                if (shader != null)
+                    _lineRenderer.material = new Material(shader);
+            }
+            _lineRenderer.startColor = beamColor;
+            _lineRenderer.endColor = new Color(beamColor.r, beamColor.g, beamColor.b, 0.5f);
+        }
+    }
 
     private void Start()
     {
         if (blockingLayer.value == 0) Debug.LogWarning("HazardBeam: Assign Blocking Layer (e.g. Ghost) in Inspector.");
         if (damageLayer.value == 0) Debug.LogWarning("HazardBeam: Assign Damage Layer (e.g. Default for player) in Inspector.");
+    }
+
+    private void Update()
+    {
+        UpdateBeamVisual();
+    }
+
+    private void UpdateBeamVisual()
+    {
+        if (_lineRenderer == null) return;
+        Vector2 origin = transform.position;
+        Vector2 dir = direction.normalized;
+        if (dir.sqrMagnitude < 0.01f) dir = Vector2.right;
+        Vector2 end = origin + dir * maxDistance;
+        _lineRenderer.SetPosition(0, origin);
+        _lineRenderer.SetPosition(1, end);
     }
 
     private void FixedUpdate()
@@ -52,6 +98,13 @@ public class HazardBeam : MonoBehaviour
 
     private void KillTarget(GameObject target)
     {
+        if (target.CompareTag("Player"))
+        {
+            RespawnManager.Instance?.KillPlayer();
+            return;
+        }
+
+        // optional fallback for non-player targets
         if (disablePlayerOnHit)
             target.SetActive(false);
         else

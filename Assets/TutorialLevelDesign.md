@@ -1,10 +1,76 @@
 # Tutorial Level Design – Rewind Runner
 
-A short level to teach **move → jump → rewind** and let players feel the controls.
+A short level that teaches **plate holding**, **ghost jump boost**, and **hazard blocking** in three sections (A → B → C).
 
 ---
 
-## Teaching Order
+## Tutorial Level — Three Sections (A, B, C)
+
+### Section A — Teach plate holding (very easy)
+
+**What to place**
+
+- Player start on left platform
+- Plate on small middle platform
+- Door on right
+- Exit behind door
+
+**Spacing rule:** Player cannot jump from start to door side without the plate.
+
+**What happens**
+
+1. Player walks to plate → nothing obvious happens
+2. Player rewinds → ghost stands on plate
+3. Player walks to door → door opens
+
+---
+
+### Section B — Teach ghost jump boost
+
+**Place immediately after the door.**
+
+**What to place**
+
+- A ledge just slightly too high to jump
+- No plate here
+
+**Spacing rule:** Make the ledge **10–15% higher than max jump**.
+
+**What happens**
+
+1. Player tries jumping → fails
+2. Rewinds → jumps on ghost mid-air
+
+---
+
+### Section C — Teach hazard blocking
+
+**Place immediately after the jump boost.**
+
+**What to place**
+
+- **HazardBeam** across a gap
+- Safe platform on the other side
+
+**What happens**
+
+1. Player walks through beam → dies
+2. Player rewinds → leaves ghost standing in beam
+3. Player walks through safely
+
+---
+
+## Current Layout Reference (Tutorial_Level scene)
+
+- **Section A:** Start Platform (0, -2) → Pressure Plate Platform (7, -1) with Pressure Plate → Door Platform (13, 0.5) with Door → Exit Platform (19, -1)
+- **Section B:** Tall Ledge (25, 1) — tune height so it’s ~10–15% above max jump
+- **Section C:** HazardBeam (29, 0), Safe Platform (33, 0.5)
+
+All platforms: **Layer = Ground**, **Box Collider 2D** (not trigger). HazardBeam uses **Blocking Layer = Ghost**, **Damage Layer = Default** (player).
+
+---
+
+## Legacy: Simple Teaching Order (move → jump → rewind)
 
 | Section | Goal | What the player does |
 |--------|------|-----------------------|
@@ -13,11 +79,9 @@ A short level to teach **move → jump → rewind** and let players feel the con
 | **3. Rewind** | See rewind + ghost | On a safe platform, hold Shift to rewind, release to spawn the ghost. Try a few times. |
 | **4. Optional** | Combine skills | Slightly higher platform or longer gap so they naturally use jump + rewind. |
 
-No text or UI required for the first pass—layout alone can teach the flow.
-
 ---
 
-## Reference Layout (World Units)
+## Reference Layout (World Units) — Legacy / TutorialLevelBuilder
 
 Use this as a guide when placing platforms (by hand or with **TutorialLevelBuilder**).
 

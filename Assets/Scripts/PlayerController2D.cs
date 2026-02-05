@@ -152,19 +152,32 @@ public class PlayerController2D : MonoBehaviour
             int mask = groundMask.value;
             Vector2 feet = groundCheck.position;
 
-            // 1) Normal ray/box against Ground layer
-            bool hitRay = Physics2D.Raycast(feet, Vector2.down, groundCheckDistance, mask);
-            bool hitBox = Physics2D.OverlapBox(feet, groundCheckSize, 0f, mask);
+            // 1) Raycast down — use first hit that is NOT the player (avoids counting own collider as ground = unlimited jumps)
+            RaycastHit2D rayHit = Physics2D.Raycast(feet, Vector2.down, groundCheckDistance, mask);
+            bool hitRay = rayHit.collider != null && !IsSelfOrChild(rayHit.collider.gameObject);
+
+            // 2) OverlapBox — any overlap that is NOT the player
+            Collider2D[] overlaps = Physics2D.OverlapBoxAll(feet, groundCheckSize, 0f, mask);
+            bool hitBox = false;
+            for (int i = 0; i < overlaps.Length; i++)
+            {
+                if (overlaps[i] != null && !IsSelfOrChild(overlaps[i].gameObject))
+                {
+                    hitBox = true;
+                    break;
+                }
+            }
+
             isGrounded = hitRay || hitBox;
 
-            // 2) Fallback: raycast ALL layers, see what we hit (fixes layer/mask quirks; also logs what layer the platform is on)
+            // 3) Fallback: raycast ALL layers, see what we hit (fixes layer/mask quirks; also logs what layer the platform is on)
             if (!isGrounded)
             {
                 RaycastHit2D[] hits = Physics2D.RaycastAll(feet, Vector2.down, groundCheckDistance);
                 for (int i = 0; i < hits.Length; i++)
                 {
                     if (hits[i].collider == null) continue;
-                    if (hits[i].collider.gameObject == gameObject) continue; // ignore self
+                    if (IsSelfOrChild(hits[i].collider.gameObject)) continue;
                     int layer = hits[i].collider.gameObject.layer;
                     if ((mask & (1 << layer)) != 0)
                     {
@@ -323,6 +336,13 @@ public class PlayerController2D : MonoBehaviour
             replay.Play(segment);
         else
             Debug.LogWarning("Ghost prefab has no GhostReplay component; it won't animate.");
+    }
+
+    private bool IsSelfOrChild(GameObject other)
+    {
+        if (other == gameObject) return true;
+        if (other.transform.IsChildOf(transform)) return true;
+        return false;
     }
 
     private void Jump()
