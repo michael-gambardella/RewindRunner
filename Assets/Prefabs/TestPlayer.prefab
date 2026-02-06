@@ -193,6 +193,8 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 193
+  wallCheckDistance: 0.15
+  wallJumpOffSpeed: 3.5
   rewindDurationSeconds: 6
   rewindSmoothTime: 0.03
   ghostPrefab: {fileID: 110056113451697866, guid: 9475ba9f37efe8849893d68670eb356a, type: 3}
@@ -222,7 +224,7 @@ Transform:
   m_GameObject: {fileID: 8269789607761418315}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.9, z: 0}
+  m_LocalPosition: {x: 0, y: -0.95, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

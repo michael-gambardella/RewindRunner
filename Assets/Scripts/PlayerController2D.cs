@@ -35,10 +35,20 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.25f;
     [SerializeField] private LayerMask groundMask;
 
+    [Header("Wall Stick Prevention")]
+    [Tooltip("Distance to detect wall contact. When against a wall and holding that direction, horizontal input is ignored so you slide down instead of sticking. Use ~0.12 so we detect the wall when jumping into it (small values can miss when the ray starts inside the wall).")]
+    [SerializeField] private float wallCheckDistance = 0.12f;
+    [Tooltip("When jumping while against a wall, add this horizontal speed away from the wall so the player doesn't stick. 0 = no push.")]
+    [SerializeField] private float wallJumpOffSpeed = 3.5f;
+
     [Header("Rewind (Braid-like)")]
     [SerializeField] private float rewindDurationSeconds = 6f;
     [Tooltip("Smoothing time when rewinding (lower = snappier, higher = smoother). 0.02–0.05 works well.")]
     [SerializeField] private float rewindSmoothTime = 0.03f;
+    [Tooltip("Seconds to wait after spawning a ghost before the player can rewind again. 0 = no cooldown.")]
+    [SerializeField] private float rewindCooldownSeconds = 4f;
+    [Tooltip("Maximum time to rewind back (seconds). Stops rewinding so you don't snap to an old platform. 0 = no limit.")]
+    [SerializeField] private float maxRewindSeconds = 1.5f;
     [Tooltip("Optional: prefab to spawn as 'ghost' that replays rewound segment.")]
     [SerializeField] private GameObject ghostPrefab;
 
@@ -47,6 +57,7 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] private bool debugLog;
 
     private Rigidbody2D rb;
+    private Collider2D col;
     private float moveInput;
 
     private bool isGrounded;
@@ -59,6 +70,8 @@ public class PlayerController2D : MonoBehaviour
     private bool _jumpKeyHeldPreviousFrame;
     private bool _rewindHeldPreviousFrame;
     private float _debugLogTimer;
+    private float _lastRewindEndTime = -999f;
+    private float _rewindStartTime;
 
     // Recording: cap at ~50 samples/sec * rewindDurationSeconds
     private List<RecordedFrame> recordedFrames = new List<RecordedFrame>();
@@ -75,6 +88,7 @@ public class PlayerController2D : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
         if (rb == null)
         {
             Debug.LogError("PlayerController2D: No Rigidbody2D on this GameObject. Add a Rigidbody 2D component.");
@@ -102,7 +116,7 @@ public class PlayerController2D : MonoBehaviour
         {
             bool shiftHeld = k.leftShiftKey.isPressed || k.rightShiftKey.isPressed;
 
-            // Rewind: use polling so it works even when Game view focus is weird
+            // Rewind: use polling so it works even when Game view focus is weird; cooldown prevents ghost spam
             if (shiftHeld && !_rewindHeldPreviousFrame)
                 StartRewind();
             if (!shiftHeld && _rewindHeldPreviousFrame)
@@ -152,43 +166,61 @@ public class PlayerController2D : MonoBehaviour
             int mask = groundMask.value;
             Vector2 feet = groundCheck.position;
 
-            // 1) Raycast down — use first hit that is NOT the player (avoids counting own collider as ground = unlimited jumps)
-            RaycastHit2D rayHit = Physics2D.Raycast(feet, Vector2.down, groundCheckDistance, mask);
-            bool hitRay = rayHit.collider != null && !IsSelfOrChild(rayHit.collider.gameObject);
+            // Horizontal extent for multi-point check (when against a wall, center feet can be off the platform; left/right still over it)
+            float halfW = (col != null) ? (col.bounds.size.x * 0.45f) : 0.3f;
+            Vector2 leftFeet = feet + Vector2.left * halfW;
+            Vector2 rightFeet = feet + Vector2.right * halfW;
 
-            // 2) OverlapBox — any overlap that is NOT the player
-            Collider2D[] overlaps = Physics2D.OverlapBoxAll(feet, groundCheckSize, 0f, mask);
-            bool hitBox = false;
-            for (int i = 0; i < overlaps.Length; i++)
+            bool HitIsGround(Vector2 origin)
             {
-                if (overlaps[i] != null && !IsSelfOrChild(overlaps[i].gameObject))
+                RaycastHit2D rayHit = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance, mask);
+                return rayHit.collider != null && !IsSelfOrChild(rayHit.collider.gameObject);
+            }
+
+            // 1) Raycast down from center and from left/right so we're grounded when against a wall (one foot on platform)
+            bool hitRay = HitIsGround(feet) || HitIsGround(leftFeet) || HitIsGround(rightFeet);
+
+            // 2) OverlapBox at center and at left/right so edge-standing still counts
+            bool hitBox = false;
+            foreach (Vector2 origin in new[] { feet, leftFeet, rightFeet })
+            {
+                Collider2D[] overlaps = Physics2D.OverlapBoxAll(origin, groundCheckSize, 0f, mask);
+                for (int i = 0; i < overlaps.Length; i++)
                 {
-                    hitBox = true;
-                    break;
+                    if (overlaps[i] != null && !IsSelfOrChild(overlaps[i].gameObject))
+                    {
+                        hitBox = true;
+                        break;
+                    }
                 }
+                if (hitBox) break;
             }
 
             isGrounded = hitRay || hitBox;
 
-            // 3) Fallback: raycast ALL layers, see what we hit (fixes layer/mask quirks; also logs what layer the platform is on)
+            // 3) Fallback: raycast ALL layers from all three points (fixes layer/mask quirks)
             if (!isGrounded)
             {
-                RaycastHit2D[] hits = Physics2D.RaycastAll(feet, Vector2.down, groundCheckDistance);
-                for (int i = 0; i < hits.Length; i++)
+                foreach (Vector2 origin in new[] { feet, leftFeet, rightFeet })
                 {
-                    if (hits[i].collider == null) continue;
-                    if (IsSelfOrChild(hits[i].collider.gameObject)) continue;
-                    int layer = hits[i].collider.gameObject.layer;
-                    if ((mask & (1 << layer)) != 0)
+                    RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.down, groundCheckDistance);
+                    for (int i = 0; i < hits.Length; i++)
                     {
-                        isGrounded = true;
-                        break;
+                        if (hits[i].collider == null) continue;
+                        if (IsSelfOrChild(hits[i].collider.gameObject)) continue;
+                        int layer = hits[i].collider.gameObject.layer;
+                        if ((mask & (1 << layer)) != 0)
+                        {
+                            isGrounded = true;
+                            break;
+                        }
+                        if (!_warnedWrongLayer)
+                        {
+                            _warnedWrongLayer = true;
+                            Debug.LogWarning($"PlayerController2D: Standing on '{hits[i].collider.gameObject.name}' (layer '{LayerMask.LayerToName(layer)}') but that layer isn't in your Ground Mask. On the Player, set Ground Mask to Ground + Ghost + Default so jump works on platforms, the ghost, and pressure plates.");
+                        }
                     }
-                    if (!_warnedWrongLayer)
-                    {
-                        _warnedWrongLayer = true;
-                        Debug.LogWarning($"PlayerController2D: Standing on '{hits[i].collider.gameObject.name}' (layer '{LayerMask.LayerToName(layer)}') but that layer isn't in your Ground Mask. On the Player, set Ground Mask to Ground + Ghost + Default so jump works on platforms, the ghost, and pressure plates.");
-                    }
+                    if (isGrounded) break;
                 }
             }
         }
@@ -243,8 +275,31 @@ public class PlayerController2D : MonoBehaviour
         // Record this frame for rewind (oldest at index 0, newest at end)
         RecordCurrentFrame();
 
+        // Ignore horizontal input when pushing into a wall so the player slides down instead of sticking
+        float effectiveMoveInput = moveInput;
+        bool pushingIntoWall = false;
+        if (col != null && groundMask.value != 0)
+        {
+            Bounds b = col.bounds;
+            // Cast from slightly inside the bounds so we still hit the wall when flush (ray from inside a collider doesn't hit it)
+            float inset = 0.02f;
+            Vector2 leftOrigin = new Vector2(b.min.x + inset, b.center.y);
+            Vector2 rightOrigin = new Vector2(b.max.x - inset, b.center.y);
+            float castDist = wallCheckDistance + inset;
+            RaycastHit2D hitLeft = Physics2D.Raycast(leftOrigin, Vector2.left, castDist, groundMask);
+            RaycastHit2D hitRight = Physics2D.Raycast(rightOrigin, Vector2.right, castDist, groundMask);
+            bool touchingWallLeft = hitLeft.collider != null && !IsSelfOrChild(hitLeft.collider.gameObject);
+            bool touchingWallRight = hitRight.collider != null && !IsSelfOrChild(hitRight.collider.gameObject);
+            if (touchingWallLeft && effectiveMoveInput < 0f) { effectiveMoveInput = 0f; pushingIntoWall = true; }
+            if (touchingWallRight && effectiveMoveInput > 0f) { effectiveMoveInput = 0f; pushingIntoWall = true; }
+        }
+
+        // When pushing into a wall, zero horizontal velocity so we slide down instead of sticking
+        if (pushingIntoWall)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+
         // Target velocity
-        float targetSpeed = moveInput * moveSpeed;
+        float targetSpeed = effectiveMoveInput * moveSpeed;
         float speedDiff = targetSpeed - rb.linearVelocity.x;
 
         // Accel vs decel
@@ -257,7 +312,7 @@ public class PlayerController2D : MonoBehaviour
         float clampedX = Mathf.Clamp(rb.linearVelocity.x, -moveSpeed, moveSpeed);
         rb.linearVelocity = new Vector2(clampedX, rb.linearVelocity.y);
 
-        ApplyBetterJump();
+        ApplyBetterJump(pushingIntoWall);
     }
 
     private void RecordCurrentFrame()
@@ -274,6 +329,8 @@ public class PlayerController2D : MonoBehaviour
 
     private void StartRewind()
     {
+        if (rewindCooldownSeconds > 0f && (Time.time - _lastRewindEndTime) < rewindCooldownSeconds)
+            return;
         if (recordedFrames.Count < 2)
         {
             if (!_warnedRewindFrames) { Debug.LogWarning("PlayerController2D: Rewind needs at least 2 recorded frames. Play for a second or two, then hold Shift to rewind."); _warnedRewindFrames = true; }
@@ -281,6 +338,7 @@ public class PlayerController2D : MonoBehaviour
         }
         _warnedRewindFrames = false;
         isRewinding = true;
+        _rewindStartTime = Time.time;
         rewindSegment = new List<RecordedFrame>();
         _rewindTargetPosition = transform.position;
         _rewindTargetVelocity = Vector2.zero;
@@ -300,6 +358,10 @@ public class PlayerController2D : MonoBehaviour
             StopRewind();
             return;
         }
+        // Don't rewind further than maxRewindSeconds so we don't snap to an old platform
+        RecordedFrame wouldLandOn = recordedFrames[recordedFrames.Count - 2];
+        if (maxRewindSeconds > 0f && (_rewindStartTime - wouldLandOn.time) > maxRewindSeconds)
+            return;
         // Store the "future" frame we're undoing so the ghost can replay it (Add + Reverse is O(1) per step vs Insert(0) O(n))
         rewindSegment.Add(recordedFrames[recordedFrames.Count - 1]);
         recordedFrames.RemoveAt(recordedFrames.Count - 1);
@@ -323,6 +385,7 @@ public class PlayerController2D : MonoBehaviour
         {
             rewindSegment.Reverse(); // we built rewindSegment in reverse order (newest first); flip for chronological playback
             SpawnGhost(rewindSegment);
+            _lastRewindEndTime = Time.time;
         }
         rewindSegment = null;
     }
@@ -350,18 +413,40 @@ public class PlayerController2D : MonoBehaviour
         // Reset Y velocity so jump height is consistent
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+
+        // If we're against a wall, add a small velocity away so we don't stick when jumping from the wall
+        if (wallJumpOffSpeed > 0f && col != null && groundMask.value != 0)
+        {
+            Bounds b = col.bounds;
+            float inset = 0.02f;
+            float castDist = wallCheckDistance + inset;
+            Vector2 leftOrigin = new Vector2(b.min.x + inset, b.center.y);
+            Vector2 rightOrigin = new Vector2(b.max.x - inset, b.center.y);
+            RaycastHit2D hitLeft = Physics2D.Raycast(leftOrigin, Vector2.left, castDist, groundMask);
+            RaycastHit2D hitRight = Physics2D.Raycast(rightOrigin, Vector2.right, castDist, groundMask);
+            bool againstLeftWall = hitLeft.collider != null && !IsSelfOrChild(hitLeft.collider.gameObject);
+            bool againstRightWall = hitRight.collider != null && !IsSelfOrChild(hitRight.collider.gameObject);
+            float pushX = 0f;
+            if (againstLeftWall) pushX = wallJumpOffSpeed;
+            else if (againstRightWall) pushX = -wallJumpOffSpeed;
+            if (pushX != 0f)
+                rb.linearVelocity = new Vector2(pushX, rb.linearVelocity.y);
+        }
     }
 
-    private void ApplyBetterJump()
+    private void ApplyBetterJump(bool pushingIntoWall)
     {
         // Makes falling snappier & short-hops feel good
         if (rb.linearVelocity.y < 0f)
         {
             rb.AddForce(Vector2.up * Physics2D.gravity.y * (fallGravityMultiplier - 1f) * rb.mass);
         }
-        else if (rb.linearVelocity.y > 0f && (Keyboard.current == null || !Keyboard.current.spaceKey.isPressed))
+        else if (rb.linearVelocity.y > 0f)
         {
-            rb.AddForce(Vector2.up * Physics2D.gravity.y * (lowJumpGravityMultiplier - 1f) * rb.mass);
+            // When against a wall, always use low-jump gravity so we don't float up the wall when holding space
+            bool useLowJumpGravity = pushingIntoWall || (Keyboard.current == null || !Keyboard.current.spaceKey.isPressed);
+            if (useLowJumpGravity)
+                rb.AddForce(Vector2.up * Physics2D.gravity.y * (lowJumpGravityMultiplier - 1f) * rb.mass);
         }
     }
 

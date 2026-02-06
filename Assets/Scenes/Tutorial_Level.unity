@@ -1505,7 +1505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfbd4b7cd27df4748b597fd8755b35fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelEnd
-  loadNextScene: 0
+  loadNextScene: 1
 --- !u!61 &1873622566
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2023,7 +2023,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7356364213960697865, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
       propertyPath: beamWidth
-      value: 0.15
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7356364213960697865, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
       propertyPath: beamColor.b
@@ -2106,6 +2106,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8794623206833297918, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2119,41 +2123,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 304875808388336442, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
-      propertyPath: m_Size.y
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2184284432070149945, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_Name
       value: Door
       objectReference: {fileID: 0}
     - target: {fileID: 2840155344484138048, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
-      propertyPath: plates.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2840155344484138048, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: 'plates.Array.data[0]'
       value: 
       objectReference: {fileID: 1676858997}
-    - target: {fileID: 2840155344484138048, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
-      propertyPath: 'plates.Array.data[1]'
-      value: 
-      objectReference: {fileID: 3578063174257660380, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
     - target: {fileID: 7218734796102899327, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_Color.b
-      value: 0.15018691
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7218734796102899327, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_Color.g
-      value: 0.15018691
-      objectReference: {fileID: 0}
-    - target: {fileID: 7218734796102899327, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
-      propertyPath: m_Color.r
-      value: 0.254717
+      value: 0.9411765
       objectReference: {fileID: 0}
     - target: {fileID: 8223840291954199982, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8223840291954199982, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2161,7 +2149,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8223840291954199982, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8223840291954199982, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_LocalPosition.z

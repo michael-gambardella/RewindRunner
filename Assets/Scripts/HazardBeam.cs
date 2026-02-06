@@ -40,15 +40,32 @@ public class HazardBeam : MonoBehaviour
             _lineRenderer.positionCount = 2;
             _lineRenderer.startWidth = beamWidth;
             _lineRenderer.endWidth = beamWidth * 0.5f;
-            if (_lineRenderer.material == null || _lineRenderer.material.name.StartsWith("Default"))
-            {
-                Shader shader = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
-                if (shader != null)
-                    _lineRenderer.material = new Material(shader);
-            }
+            EnsureBeamMaterial();
             _lineRenderer.startColor = beamColor;
             _lineRenderer.endColor = new Color(beamColor.r, beamColor.g, beamColor.b, 0.5f);
         }
+    }
+
+    /// <summary>
+    /// Use a material that shows Beam Color. In URP, default Line Renderer material is often gray and ignores vertex color;
+    /// we try vertex-color shaders first, then URP Unlit and set _BaseColor so the beam is the right color.
+    /// </summary>
+    private void EnsureBeamMaterial()
+    {
+        if (_lineRenderer == null) return;
+
+        Shader shader = Shader.Find("Sprites/Default")
+            ?? Shader.Find("Unlit/Color")
+            ?? Shader.Find("Universal Render Pipeline/Unlit")
+            ?? Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit");
+        if (shader == null) return;
+
+        _lineRenderer.material = new Material(shader);
+        Material mat = _lineRenderer.material;
+        if (mat.HasProperty("_BaseColor"))
+            mat.SetColor("_BaseColor", beamColor);
+        else if (mat.HasProperty("_Color"))
+            mat.SetColor("_Color", beamColor);
     }
 
     private void Start()
