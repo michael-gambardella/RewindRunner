@@ -315,6 +315,24 @@ public class PlayerController2D : MonoBehaviour
         ApplyBetterJump(pushingIntoWall);
     }
 
+    /// <summary>
+    /// Clears the rewind recording buffer. Call this on respawn so the player doesn't rewind
+    /// into pre-death positions (avoids weird "rewind from before death" behavior).
+    /// RespawnManager calls this automatically after respawn.
+    /// </summary>
+    public void ClearRecordingBuffer()
+    {
+        recordedFrames.Clear();
+        rewindSegment = null;
+        if (isRewinding && rb != null)
+        {
+            isRewinding = false;
+            rb.simulated = true;
+            rb.interpolation = _interpolationBeforeRewind;
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
     private void RecordCurrentFrame()
     {
         recordedFrames.Add(new RecordedFrame

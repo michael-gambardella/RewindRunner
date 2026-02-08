@@ -106,6 +106,11 @@ public class RespawnManager : MonoBehaviour
         if (rb != null)
             rb.linearVelocity = Vector2.zero;
 
+        // Reset ghost recording buffer so we don't rewind into pre-death (spikes, beams, etc.)
+        var playerController = player.GetComponent<PlayerController2D>();
+        if (playerController != null)
+            playerController.ClearRecordingBuffer();
+
         player.SetActive(true);
 
         // Fade back from black
