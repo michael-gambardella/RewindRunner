@@ -93,21 +93,33 @@ public class HazardBeam : MonoBehaviour
     private void FixedUpdate()
     {
         Vector2 origin = transform.position;
-        Vector2 dir = direction.normalized;
+        Vector2 dir = direction.sqrMagnitude >= 0.01f ? direction.normalized : (Vector2)transform.right;
         if (dir.sqrMagnitude < 0.01f) return;
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir, maxDistance);
-        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+        // Use a thick beam (box overlap) so the whole beam length is deadly, not just a thin center line
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        Vector2 halfSize = new Vector2(maxDistance * 0.5f, beamWidth * 0.5f);
+        Vector2 center = origin + dir * (maxDistance * 0.5f);
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, halfSize * 2f, angle, blockingLayer | damageLayer);
+
+        // Sort by distance from beam origin so blocking (ghost) in front of player blocks correctly
+        System.Array.Sort(hits, (a, b) =>
+        {
+            if (a == null || b == null) return 0;
+            float da = Vector2.Dot((Vector2)a.bounds.center - origin, dir);
+            float db = Vector2.Dot((Vector2)b.bounds.center - origin, dir);
+            return da.CompareTo(db);
+        });
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider == null) continue;
-            int layer = hits[i].collider.gameObject.layer;
+            if (hits[i] == null) continue;
+            int layer = hits[i].gameObject.layer;
             if (((1 << layer) & blockingLayer) != 0)
                 return;
             if (((1 << layer) & damageLayer) != 0)
             {
-                KillTarget(hits[i].collider.gameObject);
+                KillTarget(hits[i].gameObject);
                 return;
             }
         }
@@ -131,8 +143,8 @@ public class HazardBeam : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Vector2 origin = transform.position;
-        Vector2 dir = direction.normalized;
-        if (dir.sqrMagnitude < 0.01f) dir = Vector2.right;
+        Vector2 dir = direction.sqrMagnitude >= 0.01f ? direction.normalized : (Vector2)transform.right;
+        if (dir.sqrMagnitude < 0.01f) return;
         Gizmos.color = Color.red;
         Gizmos.DrawLine(origin, origin + dir * maxDistance);
     }
