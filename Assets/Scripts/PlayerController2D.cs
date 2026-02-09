@@ -46,7 +46,9 @@ public class PlayerController2D : MonoBehaviour
     [Tooltip("Smoothing time when rewinding (lower = snappier, higher = smoother). 0.02–0.05 works well.")]
     [SerializeField] private float rewindSmoothTime = 0.03f;
     [Tooltip("Seconds to wait after spawning a ghost before the player can rewind again. 0 = no cooldown.")]
-    [SerializeField] private float rewindCooldownSeconds = 4f;
+    [SerializeField] private float rewindCooldownSeconds = 3f;
+    [Tooltip("Minimum recorded frames required to start rewind. Prevents 'one-step' rewinds that snap; 15–25 is smooth.")]
+    [SerializeField] private int minRecordedFramesForRewind = 10;
     [Tooltip("Maximum time to rewind back (seconds). Stops rewinding so you don't snap to an old platform. 0 = no limit.")]
     [SerializeField] private float maxRewindSeconds = 1.5f;
     [Tooltip("Optional: prefab to spawn as 'ghost' that replays rewound segment.")]
@@ -349,9 +351,10 @@ public class PlayerController2D : MonoBehaviour
     {
         if (rewindCooldownSeconds > 0f && (Time.time - _lastRewindEndTime) < rewindCooldownSeconds)
             return;
-        if (recordedFrames.Count < 2)
+        int minFrames = Mathf.Max(2, minRecordedFramesForRewind);
+        if (recordedFrames.Count < minFrames)
         {
-            if (!_warnedRewindFrames) { Debug.LogWarning("PlayerController2D: Rewind needs at least 2 recorded frames. Play for a second or two, then hold Shift to rewind."); _warnedRewindFrames = true; }
+            if (!_warnedRewindFrames) { Debug.LogWarning($"PlayerController2D: Rewind needs at least {minFrames} recorded frames. Play for a second or two, then hold Shift to rewind."); _warnedRewindFrames = true; }
             return;
         }
         _warnedRewindFrames = false;

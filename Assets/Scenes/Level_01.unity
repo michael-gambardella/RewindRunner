@@ -541,95 +541,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2566019093742807664, guid: 57a3b03b0aca60a4688acc7461de1e4f, type: 3}
   m_PrefabInstance: {fileID: 1164567923898631314}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &928060020
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3578063174257660380, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: unpressedColor.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3578063174257660380, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: unpressedColor.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3578063174257660380, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: unpressedColor.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4956201886289574777, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_Name
-      value: Pressure Plate
-      objectReference: {fileID: 0}
-    - target: {fileID: 8794623206833297918, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_Color.b
-      value: 0.99999976
-      objectReference: {fileID: 0}
-    - target: {fileID: 8794623206833297918, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_Color.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8794623206833297918, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-      propertyPath: m_Color.r
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
 --- !u!1 &1077059808
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,6 +952,74 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1949359244}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1470802196
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757821959898830192, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4956201886289574777, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+      propertyPath: m_Name
+      value: Pressure Plate
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+--- !u!114 &1470802197 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3578063174257660380, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
+  m_PrefabInstance: {fileID: 1470802196}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9009a6ac58444c4db61ee09d1a39c78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PressurePlate
 --- !u!1 &1543336650
 GameObject:
   m_ObjectHideFlags: 0
@@ -1534,7 +1513,7 @@ PrefabInstance:
     - target: {fileID: 2840155344484138048, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: 'plates.Array.data[0]'
       value: 
-      objectReference: {fileID: 2049588116}
+      objectReference: {fileID: 1470802197}
     - target: {fileID: 8223840291954199982, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: m_LocalScale.y
       value: 6
@@ -1615,7 +1594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfbd4b7cd27df4748b597fd8755b35fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelEnd
-  loadNextScene: 0
+  loadNextScene: 1
 --- !u!61 &2026543474
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1735,17 +1714,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2049588116 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3578063174257660380, guid: da49fae5a45a9fe46943b75fb7c54c93, type: 3}
-  m_PrefabInstance: {fileID: 928060020}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9009a6ac58444c4db61ee09d1a39c78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PressurePlate
 --- !u!1001 &1164567923898631314
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1894,6 +1862,6 @@ SceneRoots:
   - {fileID: 1754931489}
   - {fileID: 1122992411}
   - {fileID: 1949359244}
-  - {fileID: 928060020}
   - {fileID: 1992683454}
   - {fileID: 2026543476}
+  - {fileID: 1470802196}

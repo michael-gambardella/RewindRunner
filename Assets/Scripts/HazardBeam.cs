@@ -1,9 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// Raycast beam that kills the player unless blocked by the Ghost.
-/// Place on a GameObject; beam shoots in local right direction (or set direction in Inspector).
-/// Blocking layer = Ghost; damage layer = Default (player). First hit wins: Ghost blocks, Player dies.
+/// Beam that kills the player unless blocked by the Ghost. Intended puzzle: (1) Walk into the beam;
+/// (2) before the kill delay expires, hold rewind so your past self (ghost) replays into the beam and blocks it;
+/// (3) you rewind back to safety, then walk through. Player Kill Delay gives time to rewind so the ghost
+/// can enter the beam without you dying. Ghost prefab must be on Blocking Layer and have a Collider2D.
 /// </summary>
 public class HazardBeam : MonoBehaviour
 {
@@ -14,10 +15,14 @@ public class HazardBeam : MonoBehaviour
     [SerializeField] private float maxDistance = 10f;
 
     [Header("Layers")]
+    [Tooltip("Objects on this layer block the beam (e.g. Ghost). Ghost prefab must be on this layer and have a Collider2D.")]
     [SerializeField] private LayerMask blockingLayer;
+    [Tooltip("Objects on this layer are killed (e.g. Default for player).")]
     [SerializeField] private LayerMask damageLayer;
 
     [Header("Kill")]
+    [Tooltip("Seconds the player can stay in the beam before dying. Use ~0.8–1.2 so the player can rewind in time; the ghost will then replay into the beam and block it.")]
+    [SerializeField] private float playerKillDelaySeconds = 1f;
     [Tooltip("For non-player targets: disable on hit, or send Kill message.")]
     [SerializeField] private bool disablePlayerOnHit = true;
 
@@ -28,6 +33,7 @@ public class HazardBeam : MonoBehaviour
     [SerializeField] private float beamWidth = 0.15f;
 
     private LineRenderer _lineRenderer;
+    private float _playerKillTimer;
 
     private void Awake()
     {
@@ -85,7 +91,20 @@ public class HazardBeam : MonoBehaviour
         Vector2 origin = transform.position;
         Vector2 dir = direction.normalized;
         if (dir.sqrMagnitude < 0.01f) dir = Vector2.right;
-        Vector2 end = origin + dir * maxDistance;
+
+        // Stop the beam visually at the first blocker (ghost) so it's clear the ghost cuts off the beam
+        float drawLength = maxDistance;
+        if (blockingLayer.value != 0)
+        {
+            RaycastHit2D block = Physics2D.Raycast(origin, dir, maxDistance, blockingLayer);
+            if (block.collider != null)
+            {
+                float d = Vector2.Dot(block.point - origin, dir);
+                if (d > 0f)
+                    drawLength = Mathf.Min(maxDistance, d);
+            }
+        }
+        Vector2 end = origin + dir * drawLength;
         _lineRenderer.SetPosition(0, origin);
         _lineRenderer.SetPosition(1, end);
     }
@@ -116,13 +135,26 @@ public class HazardBeam : MonoBehaviour
             if (hits[i] == null) continue;
             int layer = hits[i].gameObject.layer;
             if (((1 << layer) & blockingLayer) != 0)
+            {
+                _playerKillTimer = 0f;
                 return;
+            }
             if (((1 << layer) & damageLayer) != 0)
             {
-                KillTarget(hits[i].gameObject);
+                GameObject target = hits[i].gameObject;
+                if (target.CompareTag("Player") && playerKillDelaySeconds > 0f)
+                {
+                    _playerKillTimer += Time.fixedDeltaTime;
+                    if (_playerKillTimer >= playerKillDelaySeconds)
+                        KillTarget(target);
+                    return;
+                }
+                _playerKillTimer = 0f;
+                KillTarget(target);
                 return;
             }
         }
+        _playerKillTimer = 0f;
     }
 
     private void KillTarget(GameObject target)

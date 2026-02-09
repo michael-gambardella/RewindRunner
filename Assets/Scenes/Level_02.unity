@@ -1954,7 +1954,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfbd4b7cd27df4748b597fd8755b35fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelEnd
-  loadNextScene: 0
+  loadNextScene: 1
 --- !u!61 &1993329019
 BoxCollider2D:
   m_ObjectHideFlags: 0

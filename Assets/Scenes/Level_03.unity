@@ -513,7 +513,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6156863, b: 0.6156863, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1541,7 +1541,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6156863, b: 0.6156863, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1580,7 +1580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2840155344484138048, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: openDurationSeconds
-      value: 2.1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2840155344484138048, guid: fac1945fa405c0644ab795e1067b4dd0, type: 3}
       propertyPath: 'plates.Array.data[0]'
@@ -1705,6 +1705,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4456463138409973480, guid: c5cb7128662efeb48af8702a5da0a5e6, type: 3}
+      propertyPath: loadNextScene
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5962634929983890576, guid: c5cb7128662efeb48af8702a5da0a5e6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 16

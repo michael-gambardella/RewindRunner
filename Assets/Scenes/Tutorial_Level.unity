@@ -780,7 +780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfbd4b7cd27df4748b597fd8755b35fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelEnd
-  loadNextScene: 0
+  loadNextScene: 1
 --- !u!61 &266169586
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2042,11 +2042,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7318491852997001114, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 23
+      value: 28
       objectReference: {fileID: 0}
     - target: {fileID: 7318491852997001114, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7318491852997001114, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2097,8 +2097,16 @@ PrefabInstance:
       value: 0.990566
       objectReference: {fileID: 0}
     - target: {fileID: 7356364213960697865, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
+      propertyPath: direction.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356364213960697865, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
       propertyPath: maxDistance
-      value: 7
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356364213960697865, guid: 26cad3aeb43d36d4fb08cd66d0ebf905, type: 3}
+      propertyPath: playerKillDelaySeconds
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
