@@ -48,7 +48,7 @@ public class PlayerController2D : MonoBehaviour
     [Tooltip("Seconds to wait after spawning a ghost before the player can rewind again. 0 = no cooldown.")]
     [SerializeField] private float rewindCooldownSeconds = 3f;
     [Tooltip("Minimum recorded frames required to start rewind. Prevents 'one-step' rewinds that snap; 15–25 is smooth.")]
-    [SerializeField] private int minRecordedFramesForRewind = 10;
+    [SerializeField] private int minRecordedFramesForRewind = 15;
     [Tooltip("Maximum time to rewind back (seconds). Stops rewinding so you don't snap to an old platform. 0 = no limit.")]
     [SerializeField] private float maxRewindSeconds = 1.5f;
     [Tooltip("Optional: prefab to spawn as 'ghost' that replays rewound segment.")]
@@ -71,6 +71,7 @@ public class PlayerController2D : MonoBehaviour
     private bool _warnedRewindFrames;
     private bool _jumpKeyHeldPreviousFrame;
     private bool _rewindHeldPreviousFrame;
+    private bool _wasGroundedPreviousFrame;
     private float _debugLogTimer;
     private float _lastRewindEndTime = -999f;
     private float _rewindStartTime;
@@ -236,7 +237,13 @@ public class PlayerController2D : MonoBehaviour
             Jump();
             jumpBufferTimer = 0f;
             coyoteTimer = 0f;
+            GameJuice.Instance?.OnJump();
         }
+
+        // Land detection for juice (squish, small shake)
+        if (!_wasGroundedPreviousFrame && isGrounded)
+            GameJuice.Instance?.OnLand();
+        _wasGroundedPreviousFrame = isGrounded;
 
         // Smooth rewind: move toward target each frame so it doesn’t stutter
         if (isRewinding && rb != null)
@@ -359,6 +366,7 @@ public class PlayerController2D : MonoBehaviour
         }
         _warnedRewindFrames = false;
         isRewinding = true;
+        GameJuice.Instance?.OnRewindStart();
         _rewindStartTime = Time.time;
         rewindSegment = new List<RecordedFrame>();
         _rewindTargetPosition = transform.position;
@@ -408,6 +416,7 @@ public class PlayerController2D : MonoBehaviour
             SpawnGhost(rewindSegment);
             _lastRewindEndTime = Time.time;
         }
+        GameJuice.Instance?.OnRewindStop();
         rewindSegment = null;
     }
 
